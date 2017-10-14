@@ -5,16 +5,30 @@
   "main": "index.js",
   "scripts": {
     "compile": "tsc",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest"
   },
   "author": "mkulke@gmail.com",
   "license": "ISC",
   "devDependencies": {
+    "@types/jest": "^21.1.2",
     "@types/ramda": "github:types/npm-ramda#dist",
+    "jest": "^21.2.1",
+    "ts-jest": "^21.1.2",
     "typescript": "^2.5.3"
   },
   "dependencies": {
     "ramda": "^0.25.0",
     "rxjs": "^5.4.3"
+  },
+  "jest": {
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js"
+    ],
+    "transform": {
+      "\\.(ts|tsx)$": "<rootDir>/node_modules/ts-jest/preprocessor.js"
+    },
+    "testRegex": "/__tests__/.*\\.(ts|tsx|js)$"
   }
 }

@@ -92,5 +92,6 @@ function update(chunks$: Observable<Chunk>) {
 }
 
 export {
+  _performTx,
   update,
 }
