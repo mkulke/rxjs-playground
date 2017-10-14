@@ -13,6 +13,12 @@ npm install
 npm run compile
 ```
 
+### Test
+
+```
+npm test
+```
+
 ### Run
 
 ```
@@ -30,4 +36,7 @@ insert 1
 abort tx
 /Users/mkulke/Development/rxjs-playground/node_modules/rxjs/Observable.js:164
                 throw sink.syncErrorValue;
+                ^
+
+Error: fail!
 ```
