@@ -35,8 +35,28 @@ describe('_performTx', () => {
 
   it('inserts', done => {
     const chunks$ = Observable.from([
-      [ { id: 1 }, { id: 2} ],
-      [ { id: 2 }, { id: 3} ],
+      [{ id: 1 }, { id: 2}],
+      [{ id: 2 }, { id: 3}],
+    ]);
+
+    _performTx(chunks$, client)
+      .filter((val: any) => val === 'INSERT')
+      .toArray()
+      .do(inserts => {
+        expect(inserts).toHaveLength(2);
+      })
+      .subscribe(
+        undefined,
+        done,
+        done,
+      );
+  });
+
+  it('omits empty chunks', done => {
+    const chunks$ = Observable.from([
+      [{ id: 1 }, { id: 2}],
+      [],
+      [{ id: 3 }, { id: 4}],
     ]);
 
     _performTx(chunks$, client)
@@ -54,7 +74,7 @@ describe('_performTx', () => {
 
   it('aborts a tx on error', done => {
     const chunks$: any = Observable.from([
-      [ { id: 1 }, { id: 2 }, 'ILLEGAL' ],
+      [{ id: 1 }, { id: 2 }, 'ILLEGAL'],
     ]);
 
     _performTx(chunks$, client)
