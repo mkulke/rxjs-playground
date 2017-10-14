@@ -2,7 +2,7 @@
 
 ## Transactions
 
-The test is wrapping multiple async operations in an transaction context. On error the transaction is rolled back. IO is separated from the transaction logic, to make it testable.
+The test is wrapping multiple async operations in a transaction context. On error the tx is rolled back. IO is separated from the transaction logic, to make it testable.
 
 ### Prepare
 
