@@ -1,5 +1,23 @@
 import { Observable } from 'rxjs/Rx';
-import { _performTx } from '../tx';
+import { _performTx, _buildQueries } from '../tx';
+
+describe('_buildQueries', () => {
+  it('omits empty chunks', done => {
+    const chunks$ = Observable.from([
+      [{ id: 1 }, { id: 2}],
+      [],
+      [{ id: 3 }, { id: 4}],
+    ]);
+
+    _buildQueries(chunks$)
+      .count()
+      .subscribe(
+        value => expect(value).toBe(2),
+        done,
+        done,
+      );
+  });
+});
 
 describe('_performTx', () => {
   const client: any = {
@@ -10,9 +28,9 @@ describe('_performTx', () => {
   };
 
   it('starts a tx', done => {
-    const chunks$ = Observable.from([]);
+    const queries$ = Observable.from([]);
 
-    _performTx(chunks$, client)
+    _performTx(queries$, client)
       .first()
       .subscribe(
         value => expect(value).toBe('START'),
@@ -22,9 +40,9 @@ describe('_performTx', () => {
   });
 
   it('ends a tx', done => {
-    const chunks$ = Observable.from([]);
+    const queries$ = Observable.from([]);
 
-    _performTx(chunks$, client)
+    _performTx(queries$, client)
       .last()
       .subscribe(
         value => expect(value).toBe('END'),
@@ -34,50 +52,25 @@ describe('_performTx', () => {
   });
 
   it('inserts', done => {
-    const chunks$ = Observable.from([
-      [{ id: 1 }, { id: 2}],
-      [{ id: 2 }, { id: 3}],
+    const queries$ = Observable.from([
+      { queryString: 'insert', params: [1, 2] },
+      { queryString: 'insert', params: [2, 3] },
     ]);
 
-    _performTx(chunks$, client)
+    _performTx(queries$, client)
       .filter((val: any) => val === 'INSERT')
-      .toArray()
-      .do(inserts => {
-        expect(inserts).toHaveLength(2);
-      })
+      .count()
       .subscribe(
-        undefined,
-        done,
-        done,
-      );
-  });
-
-  it('omits empty chunks', done => {
-    const chunks$ = Observable.from([
-      [{ id: 1 }, { id: 2}],
-      [],
-      [{ id: 3 }, { id: 4}],
-    ]);
-
-    _performTx(chunks$, client)
-      .filter((val: any) => val === 'INSERT')
-      .toArray()
-      .do(inserts => {
-        expect(inserts).toHaveLength(2);
-      })
-      .subscribe(
-        undefined,
+        value => expect(value).toBe(2),
         done,
         done,
       );
   });
 
   it('aborts a tx on error', done => {
-    const chunks$: any = Observable.from([
-      [{ id: 1 }, { id: 2 }, 'ILLEGAL'],
-    ]);
+    const queries$: any = Observable.throw(new Error('fail'));
 
-    _performTx(chunks$, client)
+    _performTx(queries$, client)
       .last()
       .subscribe(
         value => expect(value).toBe('ABORT'),
