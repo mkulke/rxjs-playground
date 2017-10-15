@@ -58,17 +58,20 @@ function _buildQuery(chunk: Chunk): Query {
   };
 }
 
+function _buildQueries(chunks$: Observable<Chunk>): Observable<Query> {
+  return chunks$
+    .filter(chunks => chunks.length > 0)
+    .map(_buildQuery);
+}
+
 function _insert(client: Client, query: Query): RxOk {
   return client.insert(query);
 }
 
-function _performTx(chunks$: Observable<Chunk>, client: Client): RxOk {
+function _performTx(queries$: Observable<Query>, client: Client): RxOk {
   const startTx$ = client.startTx();
   const endTx$ = client.endTx();
   const abortTx$ = client.abortTx();
-  const queries$ = chunks$
-    .filter(chunks => chunks.length > 0)
-    .map(_buildQuery);
   const insert = partial(_insert, [client]);
   const inserts$ = queries$.mergeMap(insert);
 
@@ -85,13 +88,15 @@ function _performTx(chunks$: Observable<Chunk>, client: Client): RxOk {
 }
 
 function update(chunks$: Observable<Chunk>) {
-  const performTx = partial(_performTx, [chunks$]);
+  const queries$ = _buildQueries(chunks$);
+  const performTx = partial(_performTx, [queries$]);
 
   return _connect()
     .mergeMap(performTx);
 }
 
 export {
+  _buildQueries,
   _performTx,
   update,
 }
