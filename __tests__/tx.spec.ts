@@ -1,30 +1,26 @@
 import { Observable } from 'rxjs/Rx';
-import { _performTx, _buildQueries } from '../tx';
+import { _buildQueries, _performTx } from '../tx';
 
 describe('_buildQueries', () => {
   it('omits empty chunks', done => {
     const chunks$ = Observable.from([
-      [{ id: 1 }, { id: 2}],
+      [{ id: 1 }, { id: 2 }],
       [],
-      [{ id: 3 }, { id: 4}],
+      [{ id: 3 }, { id: 4 }],
     ]);
 
     _buildQueries(chunks$)
       .count()
-      .subscribe(
-        value => expect(value).toBe(2),
-        done,
-        done,
-      );
+      .subscribe(value => expect(value).toBe(2), done, done);
   });
 });
 
 describe('_performTx', () => {
   const client: any = {
-    startTx: () => Observable.of('START'),
-    endTx: () => Observable.of('END'),
     abortTx: () => Observable.of('ABORT'),
+    endTx: () => Observable.of('END'),
     insert: () => Observable.of('INSERT'),
+    startTx: () => Observable.of('START'),
   };
 
   it('starts a tx', done => {
@@ -32,11 +28,7 @@ describe('_performTx', () => {
 
     _performTx(queries$, client)
       .first()
-      .subscribe(
-        value => expect(value).toBe('START'),
-        done,
-        done,
-      );
+      .subscribe(value => expect(value).toBe('START'), done, done);
   });
 
   it('ends a tx', done => {
@@ -44,11 +36,7 @@ describe('_performTx', () => {
 
     _performTx(queries$, client)
       .last()
-      .subscribe(
-        value => expect(value).toBe('END'),
-        done,
-        done,
-      );
+      .subscribe(value => expect(value).toBe('END'), done, done);
   });
 
   it('inserts', done => {
@@ -60,11 +48,7 @@ describe('_performTx', () => {
     _performTx(queries$, client)
       .filter((val: any) => val === 'INSERT')
       .count()
-      .subscribe(
-        value => expect(value).toBe(2),
-        done,
-        done,
-      );
+      .subscribe(value => expect(value).toBe(2), done, done);
   });
 
   it('aborts a tx on error', done => {
@@ -72,10 +56,6 @@ describe('_performTx', () => {
 
     _performTx(queries$, client)
       .last()
-      .subscribe(
-        value => expect(value).toBe('ABORT'),
-        () => done(),
-        undefined,
-      );
+      .subscribe(value => expect(value).toBe('ABORT'), () => done(), undefined);
   });
 });

@@ -8,8 +8,8 @@ interface Acc {
 
 function dropDuplicates(chunks$: Observable<Chunk>): Observable<Chunk> {
   const seed: Acc = {
-    ids: [],
     chunk: [],
+    ids: [],
   };
 
   return chunks$
@@ -27,6 +27,4 @@ function dropDuplicates(chunks$: Observable<Chunk>): Observable<Chunk> {
     .map(acc => acc.chunk);
 }
 
-export {
-  dropDuplicates,
-}
+export { dropDuplicates };

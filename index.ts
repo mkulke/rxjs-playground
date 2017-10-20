@@ -1,6 +1,6 @@
 import { chunks$ } from './chunk';
-import { update } from './tx';
 import { dropDuplicates } from './dropDuplicates';
+import { update } from './tx';
 
 chunks$
   .take(3)
@@ -8,6 +8,4 @@ chunks$
   .let(update)
   .subscribe();
 
-chunks$
-  .let(update)
-  .subscribe();
+chunks$.let(update).subscribe();
